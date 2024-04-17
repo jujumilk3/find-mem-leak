@@ -69,3 +69,23 @@ def test_check_mem_usage_async_root_request(client):
             print(
                 f"Memory Usage: {round(mem_info.rss / (1024 * 1024), 2)} MB. index: {index}. takes_time: {takes_time}"
             )
+
+
+def test_check_mem_usage_intended_leak(client):
+    pid = psutil.Process()
+    process = psutil.Process(pid.pid)
+    index = 0
+    while True:
+        start_time = datetime.now()
+        response = client.get(
+            "/intended_mem_leak",
+        )
+        assert response.status_code == status.HTTP_200_OK
+        index += 1
+        if index % 1000 == 0:
+            end_time = datetime.now()
+            takes_time = end_time - start_time
+            mem_info = process.memory_info()
+            print(
+                f"Memory Usage: {round(mem_info.rss / (1024 * 1024), 2)} MB. index: {index}. takes_time: {takes_time}"
+            )
