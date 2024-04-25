@@ -67,8 +67,16 @@ def test_check_obj_sync_root_request_by_obj_count(client):
 
 
 def test_check_obj_sorted_by_type(client):
+    call_api = True
+    # if it is True, it will call api every second
+    # then you can see the difference between objects
+    # especially, dict, function, list, weakref.ReferenceType, cell, builtin_function_or_method
     ex_dict = {}
+    ex_total = 0
     while True:
+        if call_api:
+            response = client.get("/sync")
+            assert response.status_code == status.HTTP_200_OK
         found_result = gc.get_objects()
         by_dict = defaultdict(int)
         for item in found_result:
@@ -85,9 +93,12 @@ def test_check_obj_sorted_by_type(client):
             index += 1
             if index == 20:
                 break
+        print("total:", len(found_result))
+        print("total_diff:", len(found_result) - ex_total)
         ex_dict = sorted_dict
+        ex_total = len(found_result)
         print("===" * 10)
-        sleep(5)
+        sleep(1)
 
 
 def test_check_mem_usage_sync_root_request_by_obj_objects(client):
