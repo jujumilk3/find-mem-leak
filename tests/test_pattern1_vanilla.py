@@ -1,6 +1,9 @@
 import psutil
+import gc
 from fastapi import status
 from datetime import datetime
+from time import sleep
+from collections import defaultdict
 
 
 def test_one_plus_one():
@@ -49,6 +52,61 @@ def test_check_mem_usage_sync_root_request(client):
             print(
                 f"Memory Usage: {round(mem_info.rss / (1024 * 1024), 2)} MB. index: {index}. takes_time: {takes_time}"
             )
+
+
+def test_check_obj_sync_root_request_by_obj_count(client):
+    # it increases forever. wtf
+    ex_obj_count = 0
+    while True:
+        obj_count = len(gc.get_objects())
+        if ex_obj_count > 0:
+            print(f"obj_count: {obj_count}. obj_count dff: {obj_count - ex_obj_count}")
+        ex_obj_count = obj_count
+        response = client.get("/sync")
+        assert response.status_code == status.HTTP_200_OK
+
+
+def test_check_obj_sorted_by_type(client):
+    ex_dict = {}
+    while True:
+        found_result = gc.get_objects()
+        by_dict = defaultdict(int)
+        for item in found_result:
+            by_dict[str(type(item))] += 1
+        sorted_dict = {
+            k: v for k, v in sorted(by_dict.items(), key=lambda x: x[1], reverse=True)
+        }
+        # print top 20
+        index = 0
+        for k, v in sorted_dict.items():
+            print(k, v)
+            if k in ex_dict:
+                print("  -> diff: ", v - ex_dict[k])
+            index += 1
+            if index == 20:
+                break
+        ex_dict = sorted_dict
+        print("===" * 10)
+        sleep(5)
+
+
+def test_check_mem_usage_sync_root_request_by_obj_objects(client):
+    # it increases forever. wtf
+    response = client.get("/sync")
+    found_result = gc.get_objects()
+    print(type(found_result))
+    print(len(found_result))
+    # print(gc.get_objects())
+    with open("gc_objects.txt", "w") as f:
+        for item in found_result:
+            f.write(f"{item}\n")
+    assert response.status_code == status.HTTP_200_OK
+
+
+def test_check_mem_usage_without_any_api_call(client):
+    # obj count never changes
+    while True:
+        print("obj count: ", len(gc.get_objects()))
 
 
 def test_check_mem_usage_async_root_request(client):
