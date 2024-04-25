@@ -71,12 +71,16 @@ def test_check_obj_sorted_by_type(client):
     # if it is True, it will call api every second
     # then you can see the difference between objects
     # especially, dict, function, list, weakref.ReferenceType, cell, builtin_function_or_method
+    gc_collect_after_call = True
+    # even if you call gc.collect(), object count increases forever
     ex_dict = {}
     ex_total = 0
     while True:
         if call_api:
             response = client.get("/sync")
             assert response.status_code == status.HTTP_200_OK
+        if gc_collect_after_call:
+            gc.collect()
         found_result = gc.get_objects()
         by_dict = defaultdict(int)
         for item in found_result:
