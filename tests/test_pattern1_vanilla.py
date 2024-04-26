@@ -78,6 +78,7 @@ def test_check_obj_sorted_by_type(client):
     while True:
         if call_api:
             response = client.get("/sync")
+            # response = client.get("intended_mem_leak")
             assert response.status_code == status.HTTP_200_OK
         if gc_collect_after_call:
             gc.collect()

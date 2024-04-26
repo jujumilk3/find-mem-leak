@@ -2,6 +2,12 @@
 
 ## Commands
 
+### run
+
+```bash
+uvicorn main:app --reload
+```
+
 ### Docker
 
 ```bash
