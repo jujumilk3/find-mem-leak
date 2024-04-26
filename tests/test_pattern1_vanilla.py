@@ -1,9 +1,10 @@
-import psutil
 import gc
-from fastapi import status
+from collections import defaultdict
 from datetime import datetime
 from time import sleep
-from collections import defaultdict
+
+import psutil
+from fastapi import status
 
 
 def test_one_plus_one():

@@ -1,6 +1,7 @@
+from datetime import datetime
+
 import psutil
 from fastapi import status
-from datetime import datetime
 
 
 def test_check_mem_usage_async_pydantic(client):

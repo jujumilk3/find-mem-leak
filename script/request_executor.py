@@ -1,6 +1,6 @@
-import requests
 from time import sleep
 
+import requests
 
 endpoint1 = "http://127.0.0.1:8000/sync/check-object-count"  # No leak
 endpoint2 = "http://127.0.0.1:8000/intended_mem_leak"  # leak
