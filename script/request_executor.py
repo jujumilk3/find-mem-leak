@@ -7,10 +7,12 @@ endpoint2 = "http://127.0.0.1:8000/intended_mem_leak"  # leak
 endpoint3 = "http://127.0.0.1:8000/sync/pydantic"  # No leak
 endpoint4 = "http://127.0.0.1:8000/async/pydantic"  # No leak
 endpoint5 = "http://127.0.0.1:8000/sync/di-container"  # No leak
+endpoint6 = "http://127.0.0.1:8000/sync/intended_exception"
+endpoint7 = "http://127.0.0.1:8000/async/intended_exception"
 
 # GET request
 while True:
-    response = requests.get(endpoint5)
+    response = requests.get(endpoint6)
     print(response.json())
 
 

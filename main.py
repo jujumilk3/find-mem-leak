@@ -1,7 +1,7 @@
 import gc
 
 import uvicorn
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException, status
 from pydantic import BaseModel, Field
 
 from di_container import Container
@@ -21,14 +21,18 @@ test_stack = []
 app.include_router(router=di_router)
 
 
+def mem_leak():
+    global test_stack
+    test_stack.append(["a"] * 10000)
+
+
 @app.get("/intended_mem_leak")
 async def intended_mem_leak():
     global test_stack
     # test_stack.append(str(len(test_stack)) * 10000)
     # if i use this, object count does not increase.
     # but it causes memory leak
-
-    test_stack.append(["a"] * 10000)
+    mem_leak()
     # if i use this, object count increases
     # very clear that it is a memory leak
 
@@ -70,6 +74,22 @@ def create_item(item: SimpleModel):
         "item": item.model_dump(),
         "object_count": len(gc.get_objects()),
     }
+
+
+@app.get("/sync/intended_exception")
+def sync_intended_exception():
+    raise HTTPException(
+        detail=f"gc object count: {len(gc.get_objects())}",
+        status_code=status.HTTP_200_OK,
+    )
+
+
+@app.get("/async/intended_exception")
+async def async_intended_exception():
+    raise HTTPException(
+        detail=f"gc object count: {len(gc.get_objects())}",
+        status_code=status.HTTP_200_OK,
+    )
 
 
 if __name__ == "__main__":
