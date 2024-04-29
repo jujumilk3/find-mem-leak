@@ -14,6 +14,18 @@ class SimpleModel(BaseModel):
         ..., title="Description", description="Description of the item"
     )
 
+    class InnerModel(BaseModel):
+        name: str = Field(..., title="Name", description="Name of the item")
+        description: str = Field(
+            ..., title="Description", description="Description of the item"
+        )
+
+
+class ListResponseUserInfo(BaseModel):
+    results: list["SimpleModel.InnerModel"] = Field([], title="List of items")
+
+
+ListResponseUserInfo.model_rebuild()
 
 container = Container()
 app = FastAPI()
@@ -90,6 +102,22 @@ async def async_intended_exception():
         detail=f"gc object count: {len(gc.get_objects())}",
         status_code=status.HTTP_200_OK,
     )
+
+
+@app.get("/sync/hierarchy-pydantic")
+def sync_hierarchy_pydantic():
+    return {
+        "router_name": ListResponseUserInfo(),
+        "object_count": len(gc.get_objects()),
+    }
+
+
+@app.get("/async/hierarchy-pydantic")
+async def async_hierarchy_pydantic():
+    return {
+        "router_name": ListResponseUserInfo(),
+        "object_count": len(gc.get_objects()),
+    }
 
 
 if __name__ == "__main__":
