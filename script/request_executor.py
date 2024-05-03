@@ -28,6 +28,8 @@ endpoint9 = "http://127.0.0.1:8000/async/hierarchy-pydantic"  # No leak
 while True:
     response = requests.get(endpoint1)
     print(response.json())
+    response = requests.get(endpoint2)
+    print(response.json())
     response = requests.post(endpoint3, json={"name": "test", "description": "test"})
     print(response.json())
     response = requests.post(endpoint4, json={"name": "test", "description": "test"})
