@@ -1,7 +1,7 @@
 import gc
 
 import uvicorn
-from fastapi import FastAPI, HTTPException, status
+from fastapi import FastAPI, HTTPException, status, BackgroundTasks
 from pydantic import BaseModel, Field
 
 from di_container import Container
@@ -116,6 +116,15 @@ def sync_hierarchy_pydantic():
 async def async_hierarchy_pydantic():
     return {
         "router_name": ListResponseUserInfo(),
+        "object_count": len(gc.get_objects()),
+    }
+
+
+@app.get("/sync/background-tasks")
+def sync_background_tasks(background_tasks: BackgroundTasks):
+    background_tasks.add_task(mem_leak)
+    return {
+        "router_name": "/sync/background-tasks",
         "object_count": len(gc.get_objects()),
     }
 
